@@ -2,7 +2,7 @@
 //che possa realizzare un cifratore o decifratore del cifrario di cesare 
 
 using System.Collections;
-//string[] alfabeto = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
+using System.Security.Principal;
 
 //funzione per trasformare una stringa in un array 
 char[] stringToArray(string parola)
@@ -16,36 +16,82 @@ char[] stringToArray(string parola)
     return parolaArray;
 }
 
-Console.WriteLine("Inserisci una parola");
-string parolaUtente = Console.ReadLine();
-stringToArray(parolaUtente);
-
-void StampaArray(char[] array)
+//funzione per cifrare la frase
+string cipher(string frase, int chiave)
 {
-    Console.Write("[");
-    for (int i = 0; i < array.Length; i++)
+    char[] arrayDaCifrare = stringToArray(frase.ToLower());
+
+    for (int i = 0; i < arrayDaCifrare.Length; i++)
     {
-        if (i < array.Length - 1)
-            Console.Write(array[i] + ", ");
+       //Il carattere "space"(posizione ascii 32) non cambia
+        if (arrayDaCifrare[i] == 32)
+        {
+            arrayDaCifrare[i] = arrayDaCifrare[i];
+        }
+
         else
-            Console.Write( array[i]);
+
+        {
+            //i caratteri cambiano di posizione secondo la chiave
+            arrayDaCifrare[i] = ((char)(arrayDaCifrare[i] + chiave));
+
+            //Se si va oltre si riparte dalla prima lettera dell'alfabeto
+            if (arrayDaCifrare[i] > 122)
+                arrayDaCifrare[i] = ((char)(arrayDaCifrare[i] - 29 + chiave));            
+        }
     }
-    Console.Write("]");
+    return new string(arrayDaCifrare);
 }
 
-StampaArray(stringToArray(parolaUtente));
-
-
-void cipher(string[] frase, int chiave)
+//funzione per decifrare la frase criptata
+string decipher(string frase, int chiave)
 {
-    string[] alfabeto = { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z" };
-    string fraseCifrata = "";
-    string[] arrayCifrato = new string[frase.Length];
+    char[] arrayDaDecifrare = stringToArray(frase.ToLower());
 
-    for (int i = 0; i < frase.Length; i++)
+    for (int i = 0; i < arrayDaDecifrare.Length; i++)
     {
-        arrayCifrato[i] = frase[i];
-    
+        //Il carattere "space"(posizione ascii 32) non cambia
+        if (arrayDaDecifrare[i] == 32)
+        {
+            arrayDaDecifrare[i] = arrayDaDecifrare[i];
+        }
+
+        else
+        {
+            //i caratteri cambiano di posizione secondo la chiave
+            arrayDaDecifrare[i] = ((char)(arrayDaDecifrare[i] - chiave));
+
+            if (arrayDaDecifrare[i] < 97)
+                arrayDaDecifrare[i] = ((char)(arrayDaDecifrare[i] - chiave + 29));
+        }
+    }
+    return new string(arrayDaDecifrare);
+}
+
+Console.WriteLine("Digita 0 per criptare una frase, 1 per decriptare");
+string sceltaUtente = Console.ReadLine();
+
+if(sceltaUtente != "0" && sceltaUtente != "1")
+    Console.WriteLine("Sei capace di premere un tasto?");
+else
+{
+    if (sceltaUtente == "0")
+    {
+        Console.WriteLine("Inserisci una frase da criptare");
+        string fraseUtente = Console.ReadLine();
+        Console.WriteLine("Scegli una chiave numerica");
+        int chiaveUtente = Convert.ToInt32(Console.ReadLine());
+        string fraseCifrata = cipher(fraseUtente, chiaveUtente);
+        Console.WriteLine("la frase criptata è: " + fraseCifrata);
+    }
+    if (sceltaUtente == "1")
+    {
+        Console.WriteLine("Inserisci un codice da decriptare");
+        string fraseUtente = Console.ReadLine();
+        Console.WriteLine("Inserisci una chiave numerica");
+        int chiaveUtente = Convert.ToInt32(Console.ReadLine());
+        string fraseDecifrata = decipher(fraseUtente, chiaveUtente);
+        Console.WriteLine("la frase criptata è: " + fraseDecifrata);
     }
 }
 
